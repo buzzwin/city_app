@@ -1,111 +1,193 @@
+import 'package:cityapp/widgets/quiz.dart';
+import 'package:cityapp/models/quizitem.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'widgets/quiz.dart';
+import 'widgets/result.dart';
+import 'package:geolocator/geolocator.dart';
+import 'widgets/maps.dart';
 
-void main() => runApp(MyApp());
-
-class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+// void main() {
+//   runApp(MyApp());
+// }
+void main() => runApp(CrisisApp());
+class CrisisApp extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
-    );
+  State<StatefulWidget> createState() {
+    // TODO: implement createState
+    return _CrisisAppState();
   }
 }
+class _CrisisAppState extends State<CrisisApp> {
+  var _questionIndex = 0;
+  var totalScore = 0;
+  var answeredList=[];
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  var _opacity = 1.0;
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
 
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
 
-  final String title;
+  Position _currentPosition;
 
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => _getCurrentLocation());
+  }
 
-  void _incrementCounter() {
+
+  final List<QuizItem> quizItems = [
+    QuizItem(
+      question: "Are you good ?",
+      answers: [
+        {'text': 'Yes', 'score': 10},
+        {'text': 'No', 'score': 5},
+      ]
+    ),
+    QuizItem(
+        question: "Is it raining ?",
+        answers: [
+          {'text': 'Yes', 'score': 10},
+          {'text': 'No', 'score': 5},
+        ]
+    )
+  ];
+
+  var questionsmap = [
+    {
+      'questionText': 'Do you have a temperature of 99.6 or higher?',
+      'answers': [
+        {'text': 'Yes', 'score': 10},
+        {'text': 'No', 'score': 5},
+      ],
+    },
+    {
+      'questionText': 'Do you have a cough?',
+      'answers': [
+        {'text': 'Yes', 'score': 10},
+        {'text': 'No', 'score': 5},
+      ],
+    },
+    {
+      'questionText': 'Do you have difficulty breathing?',
+      'answers': [
+        {'text': 'Yes', 'score': 10},
+        {'text': 'No', 'score': 5},
+      ],
+    },
+    {
+      'questionText': 'Do you have a body ache?',
+      'answers': [
+        {'text': 'Yes', 'score': 10},
+        {'text': 'No', 'score': 5},
+      ],
+    },
+    {
+      'questionText': 'Do you have high blood pressure?',
+      'answers': [
+        {'text': 'Yes', 'score': 10},
+        {'text': 'No', 'score': 5},
+      ],
+    },
+    {
+      'questionText': 'Have you traveled in the last 2 weeks?',
+      'answers': [
+        {'text': 'Yes', 'score': 10},
+        {'text': 'No', 'score': 5},
+      ],
+    },
+    {
+      'questionText': 'Do you have a chronic health condition such as diabetes, lung disease or heart disease?',
+      'answers': [
+        {'text': 'Yes', 'score': 10},
+        {'text': 'No', 'score': 5},
+      ],
+    },
+    {
+      'questionText': 'Are you age 65 or older?',
+      'answers': [
+        {'text': 'Yes', 'score': 10},
+        {'text': 'No', 'score': 5},
+      ],
+    },
+    {
+      'questionText': 'Have you had a positive test for the flu or other respiratory viruses in the last 2 weeks?',
+      'answers': [
+        {'text': 'Yes', 'score': 10},
+        {'text': 'No', 'score': 5},
+      ],
+    },
+    {
+      'questionText': 'Have you had direct contact of a positive carrier within 6 feet or with infectious secretions? (The CDC defines "close contact" as either 1) a "prolonged period of time" spent "within approximately 6 feet (2 meters) or within the room or care area" of an individual who has been positively diagnosed with the virus or 2) "direct contact with infectious secretions." Examples include sharing eating or drinking utensils, close conversation, or kissing, hugging, and other direct physical contact. "Close contact" does not include activities such as walking by a person or briefly sitting across a waiting room or office.)',
+      'answers': [
+        {'text': 'Yes', 'score': 10},
+        {'text': 'No', 'score': 5},
+      ],
+    },
+  ];
+
+  _getCurrentLocation() {
+    final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
+
+    geolocator
+        .getCurrentPosition(desiredAccuracy: LocationAccuracy.best)
+        .then((Position position) {
+      setState(() {
+        _currentPosition = position;
+      });
+    }).catchError((e) {
+      print(e);
+    });
+  }
+
+  void _answerQuestion(int score) {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      //if (_questionIndex < questionsmap.length - 1) {
+      if (_questionIndex < quizItems.length) {
+        _questionIndex++;
+        totalScore = totalScore + score;
+        answeredList.add(score);
+        print(answeredList);
+      }
+      else {
+        print(totalScore);
+       // _questionIndex = 0;
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(backgroundColor: Colors.pink[900],
+          title: Text('Crisis App'),
         ),
+        body: Padding(
+          padding: const EdgeInsets.all(25.0),
+          child: Container(
+            decoration: BoxDecoration(color: Color(0xFFFFFFFE),
+                boxShadow:[
+                  BoxShadow(
+                    color: Color.fromRGBO(0, 0, 0, _opacity),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: Offset(0, 7), // changes position of shadow
+                  )
+                ],
+            ),
+              child: Column(
+                children: <Widget>[
+                  _questionIndex < quizItems.length?Quiz(quizItems: quizItems ,questionIndex: _questionIndex,answerQuestion: _answerQuestion):Result(totalScore, answeredList),
+                  if (_currentPosition != null)
+                    Text(
+                        "LAT: ${_currentPosition.latitude}, LNG: ${_currentPosition.longitude}"),
+                  //MapSample(),
+                ],
+              )),
+        )
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
