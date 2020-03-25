@@ -1,3 +1,5 @@
+import 'package:cityapp/models/answeredquestionslist.dart';
+import 'package:cityapp/models/answerequestion.dart';
 import 'package:cityapp/widgets/quiz.dart';
 import 'package:cityapp/models/quizitem.dart';
 import 'package:flutter/gestures.dart';
@@ -22,6 +24,8 @@ class _CrisisAppState extends State<CrisisApp> {
   var _questionIndex = 0;
   var totalScore = 0;
   var answeredList=[];
+  var answeredQuestionsList = AnsweredQuestionsList();
+
 
   var _opacity = 1.0;
 
@@ -39,6 +43,7 @@ class _CrisisAppState extends State<CrisisApp> {
 
   final List<QuizItem> quizItems = [
     QuizItem(
+      itemIndex: 1,
       question: "Are you good ?",
       answers: [
         {'text': 'Yes', 'score': 10},
@@ -46,6 +51,7 @@ class _CrisisAppState extends State<CrisisApp> {
       ]
     ),
     QuizItem(
+        itemIndex: 2,
         question: "Is it raining ?",
         answers: [
           {'text': 'Yes', 'score': 10},
@@ -69,62 +75,6 @@ class _CrisisAppState extends State<CrisisApp> {
         {'text': 'No', 'score': 5},
       ],
     },
-    {
-      'questionText': 'Do you have difficulty breathing?',
-      'answers': [
-        {'text': 'Yes', 'score': 10},
-        {'text': 'No', 'score': 5},
-      ],
-    },
-    {
-      'questionText': 'Do you have a body ache?',
-      'answers': [
-        {'text': 'Yes', 'score': 10},
-        {'text': 'No', 'score': 5},
-      ],
-    },
-    {
-      'questionText': 'Do you have high blood pressure?',
-      'answers': [
-        {'text': 'Yes', 'score': 10},
-        {'text': 'No', 'score': 5},
-      ],
-    },
-    {
-      'questionText': 'Have you traveled in the last 2 weeks?',
-      'answers': [
-        {'text': 'Yes', 'score': 10},
-        {'text': 'No', 'score': 5},
-      ],
-    },
-    {
-      'questionText': 'Do you have a chronic health condition such as diabetes, lung disease or heart disease?',
-      'answers': [
-        {'text': 'Yes', 'score': 10},
-        {'text': 'No', 'score': 5},
-      ],
-    },
-    {
-      'questionText': 'Are you age 65 or older?',
-      'answers': [
-        {'text': 'Yes', 'score': 10},
-        {'text': 'No', 'score': 5},
-      ],
-    },
-    {
-      'questionText': 'Have you had a positive test for the flu or other respiratory viruses in the last 2 weeks?',
-      'answers': [
-        {'text': 'Yes', 'score': 10},
-        {'text': 'No', 'score': 5},
-      ],
-    },
-    {
-      'questionText': 'Have you had direct contact of a positive carrier within 6 feet or with infectious secretions? (The CDC defines "close contact" as either 1) a "prolonged period of time" spent "within approximately 6 feet (2 meters) or within the room or care area" of an individual who has been positively diagnosed with the virus or 2) "direct contact with infectious secretions." Examples include sharing eating or drinking utensils, close conversation, or kissing, hugging, and other direct physical contact. "Close contact" does not include activities such as walking by a person or briefly sitting across a waiting room or office.)',
-      'answers': [
-        {'text': 'Yes', 'score': 10},
-        {'text': 'No', 'score': 5},
-      ],
-    },
   ];
 
   _getCurrentLocation() {
@@ -141,18 +91,34 @@ class _CrisisAppState extends State<CrisisApp> {
     });
   }
 
-  void _answerQuestion(int score) {
+  void answerQuestion(int score , QuizItem quizItem) {
+      //print('The score is : ${score}');
+      //print('The quizItem is : ${quizItem}');
+
     setState(() {
       //if (_questionIndex < questionsmap.length - 1) {
       if (_questionIndex < quizItems.length) {
         _questionIndex++;
-        totalScore = totalScore + score;
-        answeredList.add(score);
-        print(answeredList);
+
+        var answeredQuestion = AnsweredQuestion();
+        //totalScore = totalScore + score;
+        answeredQuestion.answerScore = score;
+        answeredQuestion.questionIndex = quizItem.itemIndex;
+
+
+        //print(answeredQuestion);
+
+        //print('The answeredQuestion is : ${answeredQuestion}');
+
+        answeredQuestionsList.addItem(answeredQuestion);
+
+        //answeredList.add(score);
+       // print(answeredList);
       }
       else {
-        print(totalScore);
+        //print(totalScore);
        // _questionIndex = 0;
+        print("No more questions");
       }
     });
   }
@@ -162,7 +128,12 @@ class _CrisisAppState extends State<CrisisApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(backgroundColor: Colors.pink[900],
-          title: Text('Crisis App'),
+          title: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+             //Image.asset('images/logo.png', fit:BoxFit.fitWidth, height: 100,),
+            ],
+          ),
         ),
         body: Padding(
           padding: const EdgeInsets.all(25.0),
@@ -179,7 +150,7 @@ class _CrisisAppState extends State<CrisisApp> {
             ),
               child: Column(
                 children: <Widget>[
-                  _questionIndex < quizItems.length?Quiz(quizItems: quizItems ,questionIndex: _questionIndex,answerQuestion: _answerQuestion):Result(totalScore, answeredList),
+                  _questionIndex < quizItems.length?Quiz(quizItems: quizItems ,questionIndex: _questionIndex,answerQuestion: answerQuestion):Result(totalScore, answeredQuestionsList),
                   if (_currentPosition != null)
                     Text(
                         "LAT: ${_currentPosition.latitude}, LNG: ${_currentPosition.longitude}"),

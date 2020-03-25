@@ -19,8 +19,15 @@ class Quiz extends StatelessWidget {
   Widget getAnswerWidgets()
   {
     //return new Column(children: (questionsmap[this.questionIndex]['answers'] as List<Map<String, Object>>).map((answer) => new Answer(()=> this.answerQuestion(answer['score']),answer['text'])).toList());
-
-    return new Column(children: (quizItems[this.questionIndex].answers as List<dynamic>).map((answer) => new Answer(()=> this.answerQuestion(answer['score']),answer['text'])).toList());
+  //print(this.quizItems[questionIndex]);
+    return new Column(children: (quizItems[this.questionIndex].answers).map(
+            (answer) => new Answer(
+                    ()=> this.answerQuestion(
+                        answer['score'], this.quizItems[questionIndex]
+                    ),answer['text']
+            )
+    ).toList()
+    );
   }
 
   @override
@@ -28,8 +35,8 @@ class Quiz extends StatelessWidget {
     return Column(
         children: [
           Question(
-              //questionsmap[this.questionIndex]['questionText']
-            quizItems[this.questionIndex].question
+            //questionsmap[this.questionIndex]['questionText']
+              quizItems[this.questionIndex].question
           ),
           getAnswerWidgets(),
         ]
