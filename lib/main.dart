@@ -1,5 +1,5 @@
 import 'package:cityapp/models/answeredquestionslist.dart';
-import 'package:cityapp/models/answerequestion.dart';
+import 'package:cityapp/models/answeredquestion.dart';
 import 'package:cityapp/widgets/quiz.dart';
 import 'package:cityapp/models/quizitem.dart';
 import 'package:flutter/gestures.dart';

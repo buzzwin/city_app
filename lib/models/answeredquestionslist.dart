@@ -1,4 +1,4 @@
-import 'package:cityapp/models/answerequestion.dart';
+import 'package:cityapp/models/answeredquestion.dart';
 
 class AnsweredQuestionsList{
  List<AnsweredQuestion> _answeredQuestions =[];

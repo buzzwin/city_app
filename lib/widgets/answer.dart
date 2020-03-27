@@ -10,12 +10,34 @@ class Answer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: RaisedButton(
-          color: Colors.pink[900],
-          textColor: Colors.white,
-          child: Text(amswerText),
-          onPressed: selectHandler)
-    );
+    if (this.amswerText == "Yes") {
+      return Container(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: RaisedButton(
+                color: Colors.green[900],
+                textColor: Colors.white,
+                child: Text(amswerText, style: TextStyle(fontSize: 40),),
+                onPressed: selectHandler),
+          )
+      );
+    }
+    else
+      {
+        return Container(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: RaisedButton(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)
+                  ),
+
+                  color: Colors.red[900],
+                  textColor: Colors.white,
+                  child: Text(amswerText, style: TextStyle(fontSize: 40),),
+                  onPressed: selectHandler),
+            )
+        );
+      }
   }
 }
